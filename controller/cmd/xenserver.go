@@ -1,7 +1,12 @@
 package main
 
 import (
+    "fmt"
+    "errors"
     xenapi "github.com/terra-farm/go-xen-api-client"
+    "github.com/kubernetes-sigs/sig-storage-lib-external-provisioner/controller"
+    "github.com/golang/glog"
+    "k8s.io/api/core/v1"
 )
 
 // XAPI Authentication
@@ -11,7 +16,7 @@ func (p *XenServerProvisioner) XapiLogin() (*xenapi.Client, xenapi.SessionRef, e
 		return nil, "", err
 	}
 
-	session, err := xapi.Session.LoginWithPassword(p.XenServerUsername, p.XenServerPassword, "1.0", *driverProvisioner)
+	session, err := xapi.Session.LoginWithPassword(p.XenServerUsername, p.XenServerPassword, "1.0", driverProvisioner)
 	if err != nil {
 		return nil, "", err
 	}
@@ -25,18 +30,18 @@ func (p *XenServerProvisioner) XapiLogout(client *xenapi.Client, session xenapi.
 
 
 // XAPI Functions
-func (p *XenServerProvisioner) ProvisionFromXenServer(options controller.ProvisionOptions) error {
+func (p *XenServerProvisioner) ProvisionOnXenServer(options controller.ProvisionOptions) error {
     xapi, session, err := p.XapiLogin()
 	if err != nil {
 		return fmt.Errorf("Could not login at XenServer, error: %s", err.Error())
 	}
 	defer func() {
-		if err := p.xapiLogout(xapi, session); err != nil {
+		if err := p.XapiLogout(xapi, session); err != nil {
 			glog.Errorf("Failed to log out from XenServer, error: %s", err.Error())
 		}
 	}()
 
-	srNameLabel := options.Parameters[StorageClassParameterSRName]
+	srNameLabel := options.StorageClass.Parameters[StorageClassParameterSRName]
 	srs, err := xapi.SR.GetByNameLabel(session, srNameLabel)
 	if err != nil {
 		return fmt.Errorf("Could not list SRs for name label %s, error: %s", srNameLabel, err.Error())
@@ -75,7 +80,7 @@ func (p *XenServerProvisioner) DeleteFromXenServer(nameLabel string) error {
 		return errors.New(fmt.Sprintf("Could not login at XenServer, error: %s", err.Error()))
 	}
 	defer func() {
-		if err := p.xapiLogout(xapi, session); err != nil {
+		if err := p.XapiLogout(xapi, session); err != nil {
 			glog.Errorf("Failed to log out from XenServer, error: %s", err.Error())
 		}
 	}()

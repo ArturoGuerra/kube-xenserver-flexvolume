@@ -1,5 +1,12 @@
 package main
 
+import (
+    "github.com/golang/glog"
+    "github.com/kubernetes-sigs/sig-storage-lib-external-provisioner/controller"
+    "k8s.io/api/core/v1"
+    metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
 func (p *XenServerProvisioner) Provision(options controller.ProvisionOptions) (*v1.PersistentVolume, error) {
     glog.Infof("Provision called for volume: %s", options.PVName)
 
@@ -8,18 +15,19 @@ func (p *XenServerProvisioner) Provision(options controller.ProvisionOptions) (*
         return nil, err
     }
 
-    pv := %v1.PersistentVolume{
+    pv := &v1.PersistentVolume{
         ObjectMeta: metav1.ObjectMeta{
             Name: options.PVName,
         },
         Spec: v1.PersistentVolumeSpec{
-            AcessModes: options.PVC.Spec.AccessModes,
-            Capacity: v1.RecourceList{
+            AccessModes: options.PVC.Spec.AccessModes,
+            Capacity: v1.ResourceList{
                 v1.ResourceName(v1.ResourceStorage): options.PVC.Spec.Resources.Requests[v1.ResourceName(v1.ResourceStorage)],
             },
-            PersistentVolumeReclaimPolicy: options.StorageClass.ReclaimPolicy,
+            StorageClassName: options.StorageClass.ObjectMeta.Name,
+            PersistentVolumeReclaimPolicy: *options.StorageClass.ReclaimPolicy,
             PersistentVolumeSource: v1.PersistentVolumeSource{
-                FlexVolume: &v1.FlexVolumeSource{
+                FlexVolume: &v1.FlexPersistentVolumeSource{
                     Driver: driver,
                     FSType: driverFSType,
                     Options: map[string]string{
@@ -33,8 +41,6 @@ func (p *XenServerProvisioner) Provision(options controller.ProvisionOptions) (*
     }
 
     return pv, nil
-
-
 }
 
 func (p *XenServerProvisioner) Delete(volume *v1.PersistentVolume) error {

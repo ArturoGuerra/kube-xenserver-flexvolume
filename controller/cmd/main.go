@@ -1,29 +1,31 @@
 package main
 
 import (
+    "os"
+    "fmt"
     "strings"
-    glog "github.com/golang/glog"
-    controller "github.com/kubernetes-sigs/sig-storage-lib-external-provisioner/controller"
-    wait "k8s.io/apimachinery/pkg/wait"
-    kubernetes "k8s.io/client-go/kubernetes"
-    rest "k8s.io/client-go/rest"
+    "github.com/golang/glog"
+    "github.com/kubernetes-sigs/sig-storage-lib-external-provisioner/controller"
+    "k8s.io/apimachinery/pkg/util/wait"
+    "k8s.io/client-go/kubernetes"
+    "k8s.io/client-go/rest"
+    "k8s.io/utils/exec"
 )
 
-var driverName string
+var driver string
 
 func init() {
-    driverName = os.Getenv("DIVIER_NAME")
-    if driverName == "" && strings.Contains(driverName, "/") {
+    driver = os.Getenv("DRIVER")
+    if driver == "" && strings.Contains(driver, "/") {
         glog.Fatalf("Invalid driver name")
     }
 }
 
 func getOption(option string) string {
-    return fmt.Sprintf("%s/%s", driverPrefix, option)
+    return fmt.Sprintf("%s/%s", driver, option)
 }
 
-const (
-    driver                        = driverPrefix
+var (
     driverOptionXenServerHost     = getOption("host")
     driverOptionXenServerUsername = getOption("username")
     driverOptionXenServerPassword = getOption("password")
@@ -49,27 +51,26 @@ func New() controller.Provisioner {
 }
 
 func main() {
-
     config, err := rest.InClusterConfig()
     if err != nil {
         glog.Fatalf("Failed to create config: %v", err)
     }
 
-    client, err := kubernetes.NewForConfig(config)
+    clientset, err := kubernetes.NewForConfig(config)
     if err != nil {
         glog.Fatalf("Failed to create client: %v", err)
     }
 
-    serverVersion, err := client.Discovery().ServerVersion()
+    serverVersion, err := clientset.Discovery().ServerVersion()
     if err != nil {
         glog.Fatalf("Error getting server version: %v", err)
     }
 
     xenServerProvisioner := New()
 
-    pc := controller.NewProvisionerController(
-        client,
-        *driverProvisioner,
+    pc := controller.NewProvisionController(
+        clientset,
+        driverProvisioner,
         xenServerProvisioner,
         serverVersion.GitVersion,
     )
