@@ -112,7 +112,7 @@ func (p *XenServerProvisioner) DeleteFromXenServer(nameLabel string) error {
             }
         }
 
-		err := xapi.VDI.Destroy(session, vdis[0])
+		err = xapi.VDI.Destroy(session, vdis[0])
 		if err != nil {
 			return fmt.Errorf("Could not destroy VDI for name label %s, error: %s", nameLabel, err.Error())
 		}
