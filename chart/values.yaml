@@ -1,0 +1,25 @@
+name: xenserver-controller
+image: arturoguerra/kube-xenserver-storage-controller:latest
+
+daemon:
+  name: xenserver-driver
+  image: arturoguerra/kube-xenserver-storage-driver:latest
+
+ServiceAccount:
+  name: default
+
+ClusterRoleBinding:
+  name: xenserver-controller
+
+ClusterRole:
+  name: xenserver-controller
+
+Role:
+  name: xenserver-controller
+
+RoleBinding:
+  name: xenserver-controller
+
+config:
+  host: ""
+

@@ -9,3 +9,10 @@ clean:
 
 build: clean
 	COOS=linux $(GOBUILD) -o bin/driver ./cmd
+
+docker:
+	test $(DOCKERREPO)
+
+	docker build . -t $(DOCKERREPO)
+	docker push $(DOCKERREPO)
+

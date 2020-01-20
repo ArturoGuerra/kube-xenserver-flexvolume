@@ -3,13 +3,15 @@
 set -o errexit
 set -o pipefail
 
+VENDOR=arturoguerra
+DRIVER=xenserver
 DRIVERDIR=$VENDOR~$DRIVER
 
 if [ ! -d /kubelet-plugins/$DRIVERDIR ]; then
     mkdir /kubelet-plugins/$DRIVERDIR
 fi
 
-cp /usr/local/bin/driver /kubelet-plugins/$DRIVERDIR/.tmp_driver
+cp /app/driver /kubelet-plugins/$DRIVERDIR/.tmp_driver
 mv -f /kubelet-plugins/$DRIVERDIR/.tmp_driver /kubelet-plugins/$DRIVERDIR/$DRIVER
 
 while : ; do

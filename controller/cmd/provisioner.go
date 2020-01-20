@@ -29,11 +29,12 @@ func (p *XenServerProvisioner) Provision(options controller.ProvisionOptions) (*
             PersistentVolumeSource: v1.PersistentVolumeSource{
                 FlexVolume: &v1.FlexPersistentVolumeSource{
                     Driver: driver,
-                    FSType: driverFSType,
+                    FSType: "ext4",
                     Options: map[string]string{
-                        driverOptionXenServerHost:     p.XenServerHost,
-                        driverOptionXenServerUsername: p.XenServerUsername,
-                        driverOptionXenServerPassword: p.XenServerPassword,
+                        srName: options.StorageClass.Parameters[srName],
+                        "Host": p.XenServerHost,
+                        "Username": p.XenServerUsername,
+                        "Password": p.XenServerPassword,
                     },
                 },
             },

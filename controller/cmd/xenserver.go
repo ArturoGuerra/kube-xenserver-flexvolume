@@ -16,7 +16,7 @@ func (p *XenServerProvisioner) XapiLogin() (*xenapi.Client, xenapi.SessionRef, e
 		return nil, "", err
 	}
 
-	session, err := xapi.Session.LoginWithPassword(p.XenServerUsername, p.XenServerPassword, "1.0", driverProvisioner)
+	session, err := xapi.Session.LoginWithPassword(p.XenServerUsername, p.XenServerPassword, "1.0", provisioner)
 	if err != nil {
 		return nil, "", err
 	}
@@ -41,7 +41,7 @@ func (p *XenServerProvisioner) ProvisionOnXenServer(options controller.Provision
 		}
 	}()
 
-	srNameLabel := options.StorageClass.Parameters[StorageClassParameterSRName]
+	srNameLabel := options.StorageClass.Parameters[srName]
 	srs, err := xapi.SR.GetByNameLabel(session, srNameLabel)
 	if err != nil {
 		return fmt.Errorf("Could not list SRs for name label %s, error: %s", srNameLabel, err.Error())

@@ -2,8 +2,8 @@ package main
 
 import (
     "os"
-    "fmt"
-    "strings"
+//    "fmt"
+//    "strings"
     "github.com/golang/glog"
     "github.com/kubernetes-sigs/sig-storage-lib-external-provisioner/controller"
     "k8s.io/apimachinery/pkg/util/wait"
@@ -12,26 +12,11 @@ import (
     "k8s.io/utils/exec"
 )
 
-var driver string
-
-func init() {
-    driver = os.Getenv("DRIVER")
-    if driver == "" && strings.Contains(driver, "/") {
-        glog.Fatalf("Invalid driver name")
-    }
-}
-
-func getOption(option string) string {
-    return fmt.Sprintf("%s/%s", driver, option)
-}
-
-var (
-    driverOptionXenServerHost     = getOption("host")
-    driverOptionXenServerUsername = getOption("username")
-    driverOptionXenServerPassword = getOption("password")
-    StorageClassParameterSRName   = getOption("srName")
-    driverProvisioner             = getOption("provisioner")
-    driverFSType                  = "ext4"
+const (
+    driver = "arturoguerra/xenserver"
+    provisioner = "xenserver"
+    driverFSType = "ext4"
+    srName = "srName"
 )
 
 type XenServerProvisioner struct {
@@ -70,7 +55,7 @@ func main() {
 
     pc := controller.NewProvisionController(
         clientset,
-        driverProvisioner,
+        provisioner,
         xenServerProvisioner,
         serverVersion.GitVersion,
     )

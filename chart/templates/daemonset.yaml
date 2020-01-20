@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ .Values.daemon.name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.daemon.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.daemon.name }}
+    spec:
+      containers:
+        - name: {{ .Values.daemon.name }}
+          image: {{ .Values.daemon.image }}
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /kubelet-plugins
+              name: kubelet-plugins
+      volumes:
+        - name: kubelet-plugins
+          hostPath:
+            path: /usr/libexec/kubernetes/kubelet-plugins/volume/exec/
