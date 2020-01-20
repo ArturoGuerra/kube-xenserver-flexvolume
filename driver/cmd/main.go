@@ -46,6 +46,8 @@ func main() {
         jsonOptions = os.Args[3]
     }
 
+    debug(fmt.Sprintf("%s %s %s", command, mountDir, jsonOptions))
+
     switch command {
     case "init":
         fmt.Println("{\"status\": \"Success\", \"capabilities\": {\"attach\": false}}")

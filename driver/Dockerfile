@@ -1,13 +1,4 @@
-FROM golang:alpine AS builder
-
-WORKDIR /build
-COPY . .
-RUN apk add --update make
-RUN make
-
 FROM alpine:latest
-WORKDIR /app
-COPY --from=builder /build/bin/driver /app
-COPY ./deployer /app
+COPY bin/driver deployer /usr/local/bin/
 
-CMD ["./deployer"]
+ENTRYPOINT ["/usr/local/bin/deployer"]

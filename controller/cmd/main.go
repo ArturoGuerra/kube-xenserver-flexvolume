@@ -14,7 +14,7 @@ import (
 
 const (
     driver = "arturoguerra/xenserver"
-    provisioner = "xenserver"
+    provisioner = "arturoguerra/xenserver"
     driverFSType = "ext4"
     srName = "srName"
 )

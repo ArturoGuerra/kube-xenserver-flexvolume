@@ -95,6 +95,23 @@ func (p *XenServerProvisioner) DeleteFromXenServer(nameLabel string) error {
 	}
 
 	if len(vdis) > 0 {
+        vbds, err := xapi.VBD.GetAllRecords(session)
+        if err != nil {
+            return fmt.Errorf("Error getting all VBDs error: %s", err.Error())
+        }
+
+        for ref, vbd := range vbds {
+            if vbd.VDI == vdis[0] && vbd.CurrentlyAttached {
+                if err = xapi.VBD.Unplug(session, ref); err != nil {
+                    return fmt.Errorf("Error unpluging VBD error: %s", err.Error())
+                }
+
+                if err = xapi.VBD.Destroy(session, ref); err != nil {
+                    return fmt.Errorf("Error destroying VBD error: %s", err.Error())
+                }
+            }
+        }
+
 		err := xapi.VDI.Destroy(session, vdis[0])
 		if err != nil {
 			return fmt.Errorf("Could not destroy VDI for name label %s, error: %s", nameLabel, err.Error())
