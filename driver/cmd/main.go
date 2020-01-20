@@ -200,7 +200,11 @@ func mount(mountDir, jsonOptions string) {
 func unmount(mountDir string) {
     debug("syscall.Unmount")
     if err := syscall.Unmount(mountDir, 0); err != nil {
-        failure(err)
+        if err.Error() != "invalid argument" {
+            failure(err)
+        } else  {
+            debug("Already unmounted, suppressing error")
+        }
     }
 
     success()
