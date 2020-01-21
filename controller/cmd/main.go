@@ -1,7 +1,7 @@
 package main
 
 import (
-    "os"
+//    "os"
 //    "fmt"
 //    "strings"
     "github.com/golang/glog"
@@ -17,21 +17,18 @@ const (
     provisioner = "arturoguerra/xenserver"
     driverFSType = "ext4"
     srName = "srName"
+    Host = "host"
+    Username = "username"
+    Password = "password"
 )
 
 type XenServerProvisioner struct {
     runner            exec.Interface
-    XenServerHost     string
-    XenServerUsername string
-    XenServerPassword string
 }
 
 func New() controller.Provisioner {
     return &XenServerProvisioner{
-        runner:            exec.New(),
-        XenServerHost:     os.Getenv("XENSERVER_HOST"),
-        XenServerUsername: os.Getenv("XENSERVER_USERNAME"),
-        XenServerPassword: os.Getenv("XENSERVER_PASSWORD"),
+        runner: exec.New(),
     }
 }
 

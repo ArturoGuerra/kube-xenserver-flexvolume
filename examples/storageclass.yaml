@@ -3,6 +3,9 @@ kind: StorageClass
 metadata:
   name: xenserver
 parameters:
-  srName: SSD Local Storage
+  srName: XenServer SR Name
+  host: XenServer host/ip
+  username: XenServer username
+  password: XenServer password
 reclaimPolicy: Delete
 provisioner: arturoguerra/xenserver

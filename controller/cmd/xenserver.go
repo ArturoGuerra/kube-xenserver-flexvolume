@@ -10,13 +10,13 @@ import (
 )
 
 // XAPI Authentication
-func (p *XenServerProvisioner) XapiLogin() (*xenapi.Client, xenapi.SessionRef, error) {
-    xapi, err := xenapi.NewClient(fmt.Sprintf("https://%s", p.XenServerHost), nil)
+func (p *XenServerProvisioner) XapiLogin(host, username, password string) (*xenapi.Client, xenapi.SessionRef, error) {
+    xapi, err := xenapi.NewClient(fmt.Sprintf("https://%s", host), nil)
 	if err != nil {
 		return nil, "", err
 	}
 
-	session, err := xapi.Session.LoginWithPassword(p.XenServerUsername, p.XenServerPassword, "1.0", provisioner)
+	session, err := xapi.Session.LoginWithPassword(username, password, "1.0", provisioner)
 	if err != nil {
 		return nil, "", err
 	}
@@ -31,7 +31,12 @@ func (p *XenServerProvisioner) XapiLogout(client *xenapi.Client, session xenapi.
 
 // XAPI Functions
 func (p *XenServerProvisioner) ProvisionOnXenServer(options controller.ProvisionOptions) error {
-    xapi, session, err := p.XapiLogin()
+    host := options.StorageClass.Parameters[Host]
+    username := options.StorageClass.Parameters[Username]
+    password := options.StorageClass.Parameters[Password]
+	srNameLabel := options.StorageClass.Parameters[srName]
+
+    xapi, session, err := p.XapiLogin(host, username, password)
 	if err != nil {
 		return fmt.Errorf("Could not login at XenServer, error: %s", err.Error())
 	}
@@ -41,7 +46,6 @@ func (p *XenServerProvisioner) ProvisionOnXenServer(options controller.Provision
 		}
 	}()
 
-	srNameLabel := options.StorageClass.Parameters[srName]
 	srs, err := xapi.SR.GetByNameLabel(session, srNameLabel)
 	if err != nil {
 		return fmt.Errorf("Could not list SRs for name label %s, error: %s", srNameLabel, err.Error())
@@ -74,8 +78,8 @@ func (p *XenServerProvisioner) ProvisionOnXenServer(options controller.Provision
 	return nil
 }
 
-func (p *XenServerProvisioner) DeleteFromXenServer(nameLabel string) error {
-    xapi, session, err := p.XapiLogin()
+func (p *XenServerProvisioner) DeleteFromXenServer(host, username, password, nameLabel string) error {
+    xapi, session, err := p.XapiLogin(host, username, password)
     if err != nil {
 		return errors.New(fmt.Sprintf("Could not login at XenServer, error: %s", err.Error()))
 	}

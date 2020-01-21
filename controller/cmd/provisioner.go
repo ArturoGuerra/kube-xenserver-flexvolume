@@ -31,10 +31,10 @@ func (p *XenServerProvisioner) Provision(options controller.ProvisionOptions) (*
                     Driver: driver,
                     FSType: "ext4",
                     Options: map[string]string{
-                        srName: options.StorageClass.Parameters[srName],
-                        "Host": p.XenServerHost,
-                        "Username": p.XenServerUsername,
-                        "Password": p.XenServerPassword,
+                        Host:     options.StorageClass.Parameters[Host],
+                        srName:   options.StorageClass.Parameters[srName],
+                        Username: options.StorageClass.Parameters[Username],
+                        Password: options.StorageClass.Parameters[Password],
                     },
                 },
             },
@@ -45,9 +45,13 @@ func (p *XenServerProvisioner) Provision(options controller.ProvisionOptions) (*
 }
 
 func (p *XenServerProvisioner) Delete(volume *v1.PersistentVolume) error {
+    host := volume.Spec.FlexVolume.Options[Host]
+    username := volume.Spec.FlexVolume.Options[Username]
+    password := volume.Spec.FlexVolume.Options[Password]
+
     glog.Infof("Delete called for volume: %s", volume.Name)
 
-    if err := p.DeleteFromXenServer(volume.ObjectMeta.Name); err != nil {
+    if err := p.DeleteFromXenServer(host, username, password, volume.ObjectMeta.Name); err != nil {
         glog.Errorf("Failed to delete volume %s error: %s", volume, err.Error())
     }
 

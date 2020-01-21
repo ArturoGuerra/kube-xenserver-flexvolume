@@ -17,17 +17,3 @@ spec:
       containers:
         - image: {{ .Values.image }}
           name: {{ .Values.name }}
-          envFrom:
-            - configMapRef:
-                name: xenserver
-          env:
-            - name: XENSERVER_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: xenserver
-                  key: username
-            - name: XENSERVER_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: xenserver
-                  key: password
