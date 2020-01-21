@@ -1,4 +1,4 @@
-module github.com/arturoguerra/kubernetes-xenserver-provisioner
+module github.com/arturoguerra/kube-xenserver-storage/controller
 
 go 1.13
 

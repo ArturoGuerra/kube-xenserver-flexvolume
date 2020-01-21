@@ -1,4 +1,4 @@
-module github.com/arturoguerra/kubernetes-xenserver-pvc-driver
+module github.com/arturoguerra/kube-xenserver-storage/driver
 
 go 1.13
 
