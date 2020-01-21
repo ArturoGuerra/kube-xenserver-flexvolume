@@ -1,4 +1,4 @@
-module github.com/arturoguerra/kubernetes-xenserver-pvc-controller
+module github.com/arturoguerra/kubernetes-xenserver-provisioner
 
 go 1.13
 
