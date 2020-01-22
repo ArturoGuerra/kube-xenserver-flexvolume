@@ -18,21 +18,40 @@ func debug(message string) {
 }
 
 
-func success() {
-    debug("SUCCESS")
+func reply(message deviceOutput) {
+    jsonData, _ := json.Marshal(message)
+    fmt.Println(string(jsonData))
+}
+/
+func loadOptions(data string) *jsonParams {
+    var options jsonParams
+    if err := json.Unmarshal(data, &options); err != nil {
+        failure(errors.New("Error parsing jsonOptions"))
+    }
 
-    fmt.Print("{\"status\": \"Success\"}")
-    os.Exit(0)
+    return &options
 }
 
 func failure(err error) {
     debug(fmt.Sprintf("FAILURE - %s", err.Error()))
 
-    failureMap := map[string]string{"status": "Failure", "message": err.Error()}
-    jsonMessage, _ := json.Marshal(failureMap)
-    fmt.Print(string(jsonMessage))
+    output := deviceOutput{
+        Status: "Failure",
+        Message: err.Error(),
+    }
 
+    reply(output)
     os.Exit(1)
+}
+
+func success(message string) {
+    output := deviceOutput{
+        Status: "Success",
+        Message: message,
+    }
+
+    reply(output)
+    os.Exit(0)
 }
 
 func run(cmd string, args  ...string) (string, error) {
