@@ -1,20 +1,32 @@
+package main
+
+import (
+    "os"
+    "fmt"
+    "encoding/json"
+)
+
 func initCommand() {
     capabilities := driverCapabilities{
-        Attach: true,
+        Attach: false,
     }
 
-    output := driverOutput{
+    output := driverReply{
         Status: "Success",
         Capabilities: capabilities,
     }
 
-    printLn(output)
+    data, _ := json.Marshal(output)
+    fmt.Println(string(data))
+    os.Exit(0)
 }
 
 func notSupported() {
-    output := driverOutput{
+    output := driverReply{
         Status: "Not supported",
     }
 
-    printLn(output)
+    data, _ := json.Marshal(output)
+    fmt.Println(string(data))
+    os.Exit(1)
 }

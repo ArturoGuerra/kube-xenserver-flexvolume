@@ -5,6 +5,7 @@ import (
     "os"
     "os/exec"
     "encoding/json"
+    "errors"
 )
 
 const debugLogFile = "/tmp/xenserver-driver.log"
@@ -18,14 +19,14 @@ func debug(message string) {
 }
 
 
-func reply(message deviceOutput) {
+func reply(message driverReply) {
     jsonData, _ := json.Marshal(message)
     fmt.Println(string(jsonData))
 }
-/
+
 func loadOptions(data string) *jsonParams {
     var options jsonParams
-    if err := json.Unmarshal(data, &options); err != nil {
+    if err := json.Unmarshal([]byte(data), &options); err != nil {
         failure(errors.New("Error parsing jsonOptions"))
     }
 
@@ -35,7 +36,7 @@ func loadOptions(data string) *jsonParams {
 func failure(err error) {
     debug(fmt.Sprintf("FAILURE - %s", err.Error()))
 
-    output := deviceOutput{
+    output := driverReply{
         Status: "Failure",
         Message: err.Error(),
     }
@@ -45,7 +46,7 @@ func failure(err error) {
 }
 
 func success(message string) {
-    output := deviceOutput{
+    output := driverReply{
         Status: "Success",
         Message: message,
     }

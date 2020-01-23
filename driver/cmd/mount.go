@@ -2,11 +2,12 @@ package main
 
 import (
     "os"
-    "net"
+    "fmt"
     "time"
     "errors"
     "strings"
     "syscall"
+    "io/ioutil"
     "encoding/json"
 
     xenapi "github.com/terra-farm/go-xen-api-client"
@@ -14,10 +15,11 @@ import (
 
 func mount(mountDir string, params *jsonParams) {
     var err error
+    debug(mountDir)
 
-    device = attach(params)
+    device := attach(params)
 
-    if err = mountdevice(device, mountdir); err != nil {
+    if err = mountdevice(params, device, mountDir); err != nil {
         failure(err)
     }
 
@@ -25,20 +27,20 @@ func mount(mountDir string, params *jsonParams) {
         failure(err)
     }
 
-    success()
+    success("Mounted drive")
 }
 
 func saveParams(mountDir string, params *jsonParams) error {
     debug("ioutil.WriteFile")
-    byt := json.Marshal(params)
-    if err := ioutil.WriteFile(fmt.Sprinf("%s.json", mountDir), byt, 0600); err != nil {
+    byt, _ := json.Marshal(params)
+    if err := ioutil.WriteFile(fmt.Sprintf("%s.json", mountDir), byt, 0600); err != nil {
         return err
     }
 
     return nil
 }
 
-func attach(params *jsonParams) error {
+func attach(params *jsonParams) string {
     if params.FSType == "" {
         params.FSType = "ext4"
     }
@@ -53,16 +55,12 @@ func attach(params *jsonParams) error {
         failure(errors.New("Unkown ReadWrite"))
     }
 
-    xapi, session, err := xapiLogin(params.XenServerHost, params.XenServerUsername, params.XenServerPassword)
+    xapi, session, err := xapiLogin(params)
     if err != nil {
-        failure(fmt.Errof("Could not login at XenServer, error: %s", err.Error()))
+        failure(fmt.Errorf("Could not login at XenServer, error: %s", err.Error()))
     }
 
-    defer func() {
-        if err := xapiLogout(xapi, session); err != nil {
-            failure(fmt.Errorf("Failed to logout from XenServer, error: %s", err.Error()))
-        }
-    }()
+    defer xapiLogout(xapi, session)
 
     vm, err := getVM(xapi, session)
     if err != nil {
@@ -87,16 +85,16 @@ func attach(params *jsonParams) error {
 
     var vdiUUID xenapi.VDIRef
     for ref, vdi := range vdis {
-        if vdi.NameLabel == options.PVOrVolumeName && !vdi.IsASnapshot {
+        if vdi.NameLabel == params.PVOrVolumeName && !vdi.IsASnapshot {
             vdiUUID = ref
         }
     }
 
-    if vdiUUID == "" {
+    if string(vdiUUID) == "" {
         failure(errors.New("Could not find VDI"))
     }
 
-    params.VDIUUID = vdiUUID
+    params.VDIUUID = string(vdiUUID)
 
     debug("VBD.GetAllRecords")
     vbds, err := xapi.VBD.GetAllRecords(session)
@@ -141,10 +139,10 @@ func attach(params *jsonParams) error {
         failure(err)
     }
 
-    return fmt.Sprinf("/dev/%s", device)
+    return fmt.Sprintf("/dev/%s", device)
 }
 
-func mountdevice(devicePath, mountDir string) error {
+func mountdevice(params *jsonParams, devicePath, mountDir string) error {
     blkid, err := run("blkid", devicePath)
     if err != nil && !strings.Contains(err.Error(), "exit status 2") {
         return err

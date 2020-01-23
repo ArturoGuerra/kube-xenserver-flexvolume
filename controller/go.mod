@@ -1,4 +1,4 @@
-module github.com/arturoguerra/kube-xenserver-storage/controller
+module github.com/arturoguerra/kube-xenserver-flexvolume/controller
 
 go 1.13
 

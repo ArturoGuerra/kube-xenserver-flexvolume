@@ -1,4 +1,4 @@
-module github.com/arturoguerra/kube-xenserver-storage/driver
+module github.com/arturoguerra/kube-xenserver-flexvolume/driver
 
 go 1.13
 

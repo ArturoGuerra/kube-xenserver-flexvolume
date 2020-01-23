@@ -2,13 +2,35 @@ package main
 
 import (
     "net"
+    "bytes"
     "errors"
     xenapi "github.com/terra-farm/go-xen-api-client"
 )
 
-func forceDetach
+func detachVBD(vbd xenapi.VBDRef, xapi *xenapi.Client, session xenapi.SessionRef) error {
+    debug("VBD.Unplug")
+    if err := xapi.VBD.Unplug(session, vbd); err != nil {
+        return err
+    }
 
-func getMAC() (string error) {
+    debug("VBD.Destroy")
+    return xapi.VBD.Destroy(session, vbd)
+}
+
+func forceDetachVBD(vbd xenapi.VBDRef, xapi *xenapi.Client, session xenapi.SessionRef) error {
+    debug("VBD.Unplug")
+    if err := xapi.VBD.Unplug(session, vbd); err != nil {
+        debug("VBD.UnplugForce")
+        if err := xapi.VBD.UnplugForce(session, vbd); err != nil {
+            return err
+        }
+    }
+
+    debug("VBD.Destroy")
+    return xapi.VBD.Destroy(session, vbd)
+}
+
+func getMAC() (string, error) {
     debug("net.Interfaces")
     interfaces, err := net.Interfaces()
     if err != nil {
@@ -18,7 +40,7 @@ func getMAC() (string error) {
     var mac string
     for _, i := range interfaces {
         if i.Name == "eth0" && i.Flags&net.FlagUp != 0 && bytes.Compare(i.HardwareAddr, nil) != 0 {
-            return i.HardwareAddr.String()
+            mac = i.HardwareAddr.String()
         }
     }
 
