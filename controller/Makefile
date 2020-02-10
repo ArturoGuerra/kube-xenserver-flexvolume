@@ -10,9 +10,12 @@ clean:
 build: clean
 	COOS=linux $(GOBUILD) -o bin/controller ./cmd
 
-docker:
+docker-build:
 	test $(DOCKERREPO)
-
 	docker build . -t $(DOCKERREPO)
-	docker push $(DOCKERREPO)
 
+docker-push:
+	test $(DOCKERREPO)
+	docker build $(DOCKERREPO)
+
+docker: docker-build docker-push clean

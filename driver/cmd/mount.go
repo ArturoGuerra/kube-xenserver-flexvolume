@@ -104,9 +104,9 @@ func attach(params *jsonParams) string {
 
     for ref, vbd := range vbds {
         if vbd.VDI == vdiUUID && vbd.CurrentlyAttached {
-            debug("Attempting to safely detach VDI")
+            debug("Attempting to detach VDI")
             time.Sleep(10 * time.Second)
-            if err := detachVBD(ref, xapi, session); err != nil {
+            if err := forceDetachVBD(ref, xapi, session); err != nil {
                 debug("Failed at detaching VDI, will try again soon")
                 failure(err)
             }

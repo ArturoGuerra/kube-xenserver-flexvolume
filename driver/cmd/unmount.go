@@ -14,17 +14,17 @@ func unmount(mountDir string) {
     var err error
 
     debug("syscall.Unmount")
-    if err = syscall.Unmount(mountDir, 0); err != nil {
+    if err = syscall.Unmount(mountDir, syscall.MNT_DETACH); err != nil {
         if err.Error() != "invalid argument" {
             failure(err)
         }
     }
 
-    params := loadParamsFromFile(mountDir)
+    //params := loadParamsFromFile(mountDir)
 
-    defer deleteParamsFile(mountDir)
+    //defer deleteParamsFile(mountDir)
 
-    detach(params, mountDir)
+    //detach(params, mountDir)
 
     success("Unmounted and detached volume")
 }

@@ -17,3 +17,5 @@ spec:
       containers:
         - image: {{ .Values.image }}
           name: {{ .Values.name }}
+      nodeSelector:
+        node-role.kubernetes.io/master: ""
