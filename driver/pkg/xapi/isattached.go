@@ -5,22 +5,23 @@ import (
     xenapi "github.com/terra-farm/go-xen-api-client"
 )
 
-func (c *xClient) Detach(volname, nodename string) error {
+func (c *xClient) IsAttached(volname, nodename string) (bool, error) {
+
     api, session, err := c.Connect()
     if err != nil {
-        return err
+        return false, err
     }
     defer c.Close(api, session)
 
     vm, err := c.GetVM(api, session, nodename)
     if err != nil {
-        return err
+        return false, err
     }
 
     utils.Debug("VDI.GetAllRecords")
     vdis, err := api.VDI.GetAllRecords(session)
     if err != nil {
-        return err
+        return false, err
     }
 
     var vdiUUID xenapi.VDIRef
@@ -33,16 +34,14 @@ func (c *xClient) Detach(volname, nodename string) error {
     utils.Debug("VBD.GetAllRecords")
     vbds, err := api.VBD.GetAllRecords(session)
     if err != nil {
-        return err
+        return false, err
     }
 
-    for ref, vbd := range vbds {
+    for _, vbd := range vbds {
         if vbd.VM == vm && vbd.CurrentlyAttached && vbd.VDI == vdiUUID {
-            if err := c.ForceDetachVBD(ref, api, session); err != nil {
-                return err
-            }
+            return true, nil
         }
     }
 
-    return nil
+    return false, nil
 }

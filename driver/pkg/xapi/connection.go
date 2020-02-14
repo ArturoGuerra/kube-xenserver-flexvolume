@@ -19,4 +19,6 @@ func (c *xClient) Connect() (*xenapi.Client, xenapi.SessionRef, error) {
     return api, sess, nil
 }
 
-func (c *xClient) Close() (* xenapi.Client, xenapi.SessionRef)
+func (c *xClient) Close(api * xenapi.Client, sess xenapi.SessionRef) {
+    api.Session.Logout(sess)
+}

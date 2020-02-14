@@ -2,13 +2,16 @@
 
 GOBUILD = go build
 
-all: clean build
+all: clean build-test
 
 clean:
 	rm -rf bin
 
 build: clean
 	CGO_ENABLED=0 COOS=linux $(GOBUILD) -a -ldflags '-extldflags "-static"' -o bin/driver ./cmd
+
+build-test: clean
+	CGO_ENABLED=0 COOS=linux $(GOBUILD) -o bin/driver ./cmd
 
 docker-build: build
 	test $(DOCKERREPO)

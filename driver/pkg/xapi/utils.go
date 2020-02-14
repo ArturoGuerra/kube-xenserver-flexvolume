@@ -2,7 +2,8 @@ package xapi
 
 import (
     "errors"
-    "github.com/terra-farm/go-xen-api-client"
+    "github.com/arturoguerra/kube-xenserver-flexvolume/driver/pkg/utils"
+    xenapi "github.com/terra-farm/go-xen-api-client"
 )
 
 func (c *xClient) ForceDetachVBD(vbd xenapi.VBDRef, api *xenapi.Client, sess xenapi.SessionRef) error {
@@ -30,7 +31,7 @@ func (c *xClient) DetachVBD(vbd xenapi.VBDRef, api *xenapi.Client, sess xenapi.S
 
 func (c *xClient) GetVM(api *xenapi.Client, sess xenapi.SessionRef, name string) (xenapi.VMRef, error) {
     utils.Debug("VM.GetByNameLabel")
-    vms, err := api.VM.GetByNameLebel(sess, name)
+    vms, err := api.VM.GetByNameLabel(sess, name)
     if err != nil {
         return "", err
     }

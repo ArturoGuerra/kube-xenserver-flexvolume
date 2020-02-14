@@ -1,10 +1,14 @@
 package xapi
 
-func (c *xClient) Attach(label, mode, fstype, volumename string) (string, error) {
-    if !c.Master {
-        return "", errors.New("Not master")
-    }
+import (
+    "fmt"
+    "time"
+    "errors"
+    "github.com/arturoguerra/kube-xenserver-flexvolume/driver/pkg/utils"
+    xenapi "github.com/terra-farm/go-xen-api-client"
+)
 
+func (c *xClient) Attach(label, mode, fstype, volumename string) (string, error) {
     if fstype == "" {
         fstype = "ext4"
     }
@@ -12,9 +16,9 @@ func (c *xClient) Attach(label, mode, fstype, volumename string) (string, error)
     var xmode xenapi.VbdMode
     switch mode {
     case "ro":
-        mode = xenapi.VbdModeRO
+        xmode = xenapi.VbdModeRO
     case "rw":
-        mode = xenapi.VbdModeRW
+        xmode = xenapi.VbdModeRW
     default:
         return "", errors.New("Unkown ReadWrite Mode")
     }
@@ -26,7 +30,7 @@ func (c *xClient) Attach(label, mode, fstype, volumename string) (string, error)
 
     defer c.Close(api, session)
 
-    vm, err := c.GetVM(label)
+    vm, err := c.GetVM(api, session, label)
     if err != nil {
         return "", err
     }
@@ -49,7 +53,7 @@ func (c *xClient) Attach(label, mode, fstype, volumename string) (string, error)
 
     var vdiUUID xenapi.VDIRef
     for ref, vdi := range vdis {
-        if vdi.NameLabel == volumename && !vdi.IsSnapshot {
+        if vdi.NameLabel == volumename && !vdi.IsASnapshot {
             vdiUUID = ref
         }
     }
@@ -68,7 +72,7 @@ func (c *xClient) Attach(label, mode, fstype, volumename string) (string, error)
         if vbd.VDI == vdiUUID && vbd.CurrentlyAttached {
             utils.Debug("Attempting to safely detach VDI")
             time.Sleep(10 * time.Second)
-            if err := f.DetachVBD(ref, api, session); err != nil {
+            if err := c.DetachVBD(ref, api, session); err != nil {
                 return "", err
             }
         }
@@ -89,7 +93,7 @@ func (c *xClient) Attach(label, mode, fstype, volumename string) (string, error)
     }
 
     utils.Debug("VBD.Plug")
-    if err != api.VBD.Plug(session, vbdUUID); err != nil {
+    if err = api.VBD.Plug(session, vbdUUID); err != nil {
         return "", err
     }
 
