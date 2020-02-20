@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: xenserver-driver-v2
+  labels:
+    app: xenserver-driver-v2
+spec:
+  selector:
+    matchLabels:
+      app: xenserver-driver-v2
+  template:
+    metadata:
+      labels:
+        app: xenserver-driver-v2
+    spec:
+      containers:
+        - name: xenserver-driver-v2
+          image: arturoguerra/kube-xenserver-driver2
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /kubelet-plugins
+              name: kubelet-plugins
+      volumes:
+        - name: kubelet-plugins
+          hostPath:
+            path: /usr/libexec/kubernetes/kubelet-plugins/volume/exec/

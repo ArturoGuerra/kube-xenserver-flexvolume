@@ -3,7 +3,7 @@ package main
 import (
     "os"
     "fmt"
-    "errors"
+//    "errors"
     "github.com/arturoguerra/kube-xenserver-flexvolume/driver/pkg/flexvolume"
     "github.com/arturoguerra/kube-xenserver-flexvolume/driver/pkg/utils"
 )
@@ -25,10 +25,6 @@ func init() {
 }
 
 func main() {
-    if len(os.Args) == 0 {
-        panic(errors.New("Invalid ammount of args"))
-    }
-
     command := os.Args[1]
     utils.Debug(fmt.Sprintf("Running: %s", command))
     args := make([]string, 0)

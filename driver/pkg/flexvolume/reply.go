@@ -51,9 +51,8 @@ func (n *nodeClient) Reply(message *DriverReply) {
 
     bdata, _ := json.Marshal(message)
     data := string(bdata)
-    utils.Debug(data)
-
     fmt.Println(data)
+    utils.Debug(fmt.Sprintf("Data: %s Code: %d", data, exitCode))
 
     os.Exit(exitCode)
 }

@@ -4,7 +4,7 @@ set -o errexit
 set -o pipefail
 
 VENDOR=arturoguerra
-DRIVER=xenserver
+DRIVER=xenserver-v2
 DRIVERDIR=$VENDOR~$DRIVER
 
 if [ ! -d /kubelet-plugins/$DRIVERDIR ]; then

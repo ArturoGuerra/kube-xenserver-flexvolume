@@ -6,6 +6,12 @@ import (
 )
 
 func (n *nodeClient) WaitForAttach(devicename string, p *JsonParams) {
+    if devicename == "" {
+        n.Reply(&DriverReply{
+            Status: "Failure",
+        })
+    }
+
     utils.Debug(fmt.Sprintf("Drive %s is attached", devicename))
     reply := &DriverReply{
         Status: "Success",
